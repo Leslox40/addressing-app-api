@@ -1,0 +1,4 @@
+Instructions to import book data
+
+mongo clientAPI < customerJson.js
+
