@@ -13,7 +13,7 @@ function passportConfig(app) {
   passport.deserializeUser(User.deserializeUser());
 
   // Implementing local Strategy
-  passport.use(new Strategy(User.authenticate));
+  passport.use(new Strategy(User.authenticate()));
 }
 
 module.exports = passportConfig;

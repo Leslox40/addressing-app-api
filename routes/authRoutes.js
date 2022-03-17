@@ -1,9 +1,12 @@
 const express = require('express');
-const authController = require('../controllers/authController');
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const secretKey = require('../config/config');
+
+const auth = require('../controllers/authController');
 
 function router(User) {
   const authRouter = express.Router();
-  const auth = authController(User);
 
   authRouter.route('/signup')
     .post((req, res) => {
@@ -30,45 +33,66 @@ function router(User) {
     });
 
   authRouter.route('/signin')
-    .post((req, res) => {
+    .post((req, res, next) => {
       if (!req.body.username) {
-        res.json({
+        return res.json({
           success: false,
           message: 'Username was not given',
         });
-      } else if (!req.body.password) {
-        res.json({
+      }
+
+      if (!req.body.password) {
+        return res.json({
           success: false,
           message: 'Password was not given'
         });
-      } else {
-        passport.authenticate('local', (err, user, info) => {
-          if (err) {
-            res.json({
-              success: false,
-              message: err
-            });
-          } else if (!user) {
-            res.json({
-              success: false,
-              message: 'username or password incorrect'
-            });
-          } else {
-            req.login(user, (err) => {
-              if (err) {
-                res.json({
-                  success: false,
-                  message: err
-                });
-              }
-              const token = jwt.sign({userId: user._id, username: user.username}, secretKey, { expiresIn: '24h' });
-
-              res.json({ success: true, message: 'Authentication successful', token });
-            });
-          }
-        })
       }
-    })
+
+      console.log(req.body);
+
+      return passport.authenticate(
+        'local',
+        async (err, user, info) => {
+          try {
+            if (err || !user) {
+              const error = new Error('An Error occurred.');
+
+              return next(error);
+            }
+
+            console.log('This is a user');
+            console.log(user.username);
+
+            req.login(
+              user,
+              { session: false },
+              async (error) => {
+                console.log('Im inside the request body outside scope');
+
+                if (error) {
+                  console.log('Im inside the request body error scope');
+                  return next(error);
+                }
+
+                const body = { _id: user._id, username: user.username };
+                console.log(body);
+
+                const token = jwt.sign({ user: body }, secretKey.coolThirdPartyApiKey, { expiresIn: '24h' });
+
+                console.log('jwt token', token);
+
+                return res.json({ success: true, message: 'Authentication successful', token });
+              }
+            );
+          } catch (error) {
+            return next(error);
+          }
+        })(req, res, next);
+    });
+
+  authRouter.route('/logout')
+    .post(auth.logout);
+
   authRouter.route('/profile')
     .get((req, res) => {
       res.json(req.user);

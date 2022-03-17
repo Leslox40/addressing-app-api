@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const db = mongoose.connect('mongodb://localhost/clientDB');
@@ -13,11 +14,12 @@ const Client = require('./models/clientModel');
 const clientRouter = require('./routes/clientRouter')(Client);
 const User = require('./models/userModel');
 const userRouter = require('./routes/authRoutes')(User);
+const secretKey = require('./config/config');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(session({ secret: 'storage' }));
+app.use(session({ secret: 'passport-tutorial', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
 
 app.use('/api', clientRouter);
 app.use('/api', userRouter);
@@ -27,6 +29,12 @@ require('./config/passport')(app);
 app.get('/', (req, res) => {
   res.send('Welcome to my API');
 });
+
+// // app.post(
+//   '/login',
+//   passport.authenticate('local'),
+//   (req, res) => res.json(req.body)
+// );
 
 app.listen(port, () => {
   console.log(`Running on port ${port}`);

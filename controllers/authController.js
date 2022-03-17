@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const secretKey = require('../config/config');
 
 const userController = {};
 
@@ -65,7 +66,7 @@ userController.doLogin = (req, res) => {
               message: err
             });
           }
-          const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '24h' });
+          const token = jwt.sign({ userId: user._id, username: user.username }, secretKey.coolThirdPartyApiKey, { expiresIn: '24h' });
 
           res.sendStatus(201).json({ success: true, message: 'Authentication successful', token, data: { user } });
         });
@@ -81,4 +82,3 @@ userController.logout = function (req, res) {
 };
 
 module.exports = userController;
-
