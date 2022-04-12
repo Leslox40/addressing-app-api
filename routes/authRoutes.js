@@ -3,7 +3,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const secretKey = require('../config/config');
 
-const auth = require('../controllers/authController');
+// const auth = require('../controllers/authController');
 
 function router(User) {
   const authRouter = express.Router();
@@ -55,7 +55,7 @@ function router(User) {
         async (err, user, info) => {
           try {
             if (err || !user) {
-              const error = new Error('An Error occurred.');
+              const error = new Error('An Error occurred. Unable to Login username or password maybe incorrect');
 
               return next(error);
             }
@@ -91,11 +91,9 @@ function router(User) {
     });
 
   authRouter.route('/logout')
-    .post(auth.logout);
-
-  authRouter.route('/profile')
-    .get((req, res) => {
-      res.json(req.user);
+    .post((req, res) => {
+      req.logout();
+      res.redirect('/');
     });
 
   return authRouter;

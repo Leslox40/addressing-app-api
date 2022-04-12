@@ -4,10 +4,19 @@ const { Schema } = mongoose;
 
 const clientModel = new Schema(
   {
-    name: { type: String },
+    firstName: { type: String },
+    lastName: { type: String },
     email: { type: String },
-    number: { type: String },
-    address: { type: String },
+    username: { type: String },
+    imageUrl: { type: String },
+    clientId: { type: String },
+    region: { type: String },
+    city: { type: String },
+    street: { type: String },
+    lng: { type: String },
+    lat: { type: String },
+    pluscodes: { type: String },
+    description: { type: String }
   }
 );
 

@@ -6,6 +6,7 @@ function routes(Client) {
   // Routes on clientRouter
   clientRouter.route('/clients')
     .post((req, res) => {
+      // client object goes here:
       const client = new Client(req.body);
 
       client.save();

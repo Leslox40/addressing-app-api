@@ -5,9 +5,12 @@ const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
-const db = mongoose.connect('mongodb://localhost/clientDB');
+const db = mongoose.connect('mongodb+srv://adminuser-2022:6oGV4yfk9UuA4qQ4@addressing-app.61cmp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
 const port = process.env.PORT || 5000;
 
 const Client = require('./models/clientModel');
@@ -30,11 +33,16 @@ app.get('/', (req, res) => {
   res.send('Welcome to my API');
 });
 
-// // app.post(
-//   '/login',
-//   passport.authenticate('local'),
-//   (req, res) => res.json(req.body)
-// );
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${file.fieldname}-${Date.now()}`);
+  }
+});
+
+const upload = multer({ storage });
 
 app.listen(port, () => {
   console.log(`Running on port ${port}`);
